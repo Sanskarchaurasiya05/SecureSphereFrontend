@@ -1,11 +1,54 @@
 import { useState } from "react";
 import { assets } from "../assets/assets"
-import { Link } from 'react-router-dom';
-
+import { Link, useNavigate } from 'react-router-dom';
+import { AppContext } from "../context/AppContext";
+import { toast } from "react-toastify";
+import axios from 'axios';
+import { useContext } from 'react';
 
 const Login = () => {
   
   const [isCreateAccount,setIsCreateAccount] = useState(false);
+  const [name , setName] = useState("");
+  const[email,setEmail]=useState("");
+  const[password,setPassword]=useState("");
+  const[loading,setLoading]=useState(false);
+const { BACKEND_URL, setIsLoggedIn , getUserData} = useContext(AppContext); 
+  const navigate = useNavigate();
+
+  const onSubmitHandler = async(e)=>{
+    e.preventDefault();
+    axios.defaults.withCredentials=true;
+    setLoading(true);
+    try{
+      if(isCreateAccount){
+        // register API
+const response = await axios.post(`${BACKEND_URL}/register`, { name, email, password });
+        if(response.status ===201){
+             navigate("/");
+             toast.success("Account created successfully");
+        }else{
+          toast.error("Email already exists");
+        }
+      }else{
+          //  login API
+       const response = await axios.post(`${BACKEND_URL}/login`,{email,password});
+          if(response.status ===200){
+            setIsLoggedIn(true);
+            getUserData();
+             navigate("/");
+        }
+       else{
+          toast.error("Email/Password incorrect");
+        }
+      }
+    }catch(err){
+        const message = err?.response?.data?.message || "Something went wrong";
+    toast.error(message);
+    }finally{
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="position-relative min-vh-100 d-flex justify-content-center align-items-center"
@@ -21,7 +64,7 @@ const Login = () => {
           textDecoration:"none"
         }}>
           <img src={assets.OIP} alt="logo" height={32} width={32} />
-          <span className="fw-bold fs-4 text-light">SecureSphere</span>
+          <span className="fw-bold fs-4 text-light" aria-label="app logo">SecureSphere</span>
         </Link>
       </div>
 
@@ -29,7 +72,7 @@ const Login = () => {
               <h2 className="text-center mb-4">
                 {isCreateAccount ? "create Account":"Login"}
               </h2>
-                 <form>
+                 <form onSubmit={onSubmitHandler}>
                 {
                     isCreateAccount && (
                        <div className="mb-3">
@@ -40,6 +83,7 @@ const Login = () => {
                    className="form-control"
                    placeholder="Enter fullName"
                    required
+                   onChange={(e=>setName(e.target.value))}
                    />
                   </div> 
 
@@ -52,6 +96,7 @@ const Login = () => {
                    className="form-control"
                    placeholder="Enter email"
                    required
+                   onChange={(e=>setEmail(e.target.value))}
                    />
                   </div> 
                    <div className="mb-3">
@@ -62,6 +107,7 @@ const Login = () => {
                    className="form-control"
                    placeholder="************"
                    required
+                   onChange={(e=>setPassword(e.target.value))}
                    />
                   </div>
                   <div className="d-flex justify-content-between mb-3">
@@ -69,8 +115,8 @@ const Login = () => {
                     Forgot password?
                     </Link>
                   </div>
-                  <button type="submit" className="btn btn-primary w-100">
-                    {isCreateAccount ? "Sign Up":"Login"}
+                  <button type="submit" className="btn btn-primary w-100" disabled={loading}>
+                   {loading ? "Loading....":isCreateAccount?"Sign Up": "Login"}
                   </button>
                  </form>
 
