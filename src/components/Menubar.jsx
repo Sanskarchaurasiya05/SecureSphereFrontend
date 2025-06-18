@@ -7,7 +7,7 @@ import { useRef } from 'react';
 import { useEffect } from 'react';
 import { toast } from 'react-toastify';
 import axios from 'axios';
-
+import EmailVerify from '../pages/EmailVerify';
 
 const Menubar = () => {
   const navigate = useNavigate();
@@ -40,6 +40,10 @@ const handleLogout = async()=>{
   }
 }
 
+const handleClick =() =>{
+   navigate("/email-verify");
+}
+
   return (
    <nav className="navbar bg-white px-5 py-4 d-flex justify-content-between align-items-center">
     <div className="d-flex align-items-center gap-2">
@@ -70,7 +74,8 @@ const handleLogout = async()=>{
                     }}
                     >
                        {!userData.isAccountVerified && (
-                        <div className="dropdown-item py-1 px-2" style={{cursor:"pointer"}} >
+                        <div className="dropdown-item py-1 px-2" style={{cursor:"pointer"}}
+                        onClick={handleClick} >
                         Verify email
                         </div>
                        )}
