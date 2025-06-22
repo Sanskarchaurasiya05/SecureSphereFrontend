@@ -1,0 +1,11 @@
+import React from 'react'
+import { assets } from '../assets/assets'
+const Background = () => {
+  return (
+      <div className='relative Z-[2] w-full h-screen bg-zinc-800'>
+<img src={assets.OIP2} alt="header" width={250} className="absolute  top-1/2 left-1/2 -translate-x-[50%] -translate-y-[50%] opacity-100"/>
+    </div>
+  )
+}
+
+export default Background

@@ -1,14 +1,17 @@
-import { useContext, useState } from "react";
+import { useEffect, useState } from "react";
+import { useContext } from 'react';
 import { assets } from "../assets/assets"
 import { Link, useNavigate } from 'react-router-dom';
 import { AppContext } from "../context/AppContext";
 import { useRef } from 'react';
+import axios from "axios";
+import { toast } from "react-toastify";
 
 
 const EmailVerify = () => {
   const inputRef=useRef([]);
   const [loading,setLoading]=useState(false);
-  // const [ getUserData,setIsLoggedIn,userData]=useContext(AppContext);
+  const {getUserData,isLoggedIn,setIsLoggedIn,userData,BACKEND_URL,setUserData}=useContext(AppContext);
   const navigate =useNavigate();
 
   const handleChange = (e,index) => {
@@ -29,16 +32,46 @@ const EmailVerify = () => {
   const handlePaste = ()=>{
     // stop loading the entire webpage
       e.preventDefault();
-      const paste = e.clipboardData.getData("text").slice(0,6).split("");
-      paste.forEach(()=>{
+      const paste = e.clipboardData.getData("text").replace(/\D/g, "").slice(0,6).split("");
+      paste.forEach((digit,i)=>{
         if(inputRef.current[i]){
           inputRef.current[i].value = digit;
         }
       });
 
       const next = paste.length<6?paste.length:5;
-      inputRef.current[next].focus();
+      inputRef.current[next]?.focus();
   }
+
+  // api call
+
+  const handleVerify = async()=>{
+    const otp = inputRef.current.map(input=>input.value).join("");
+    if(otp.length!==6){
+      toast.error("please enter all 6 digits of the OTP.")
+      return;
+    }
+    setLoading(true);
+    try{
+      const response = await axios.post(BACKEND_URL+"/verify-otp",{otp});
+      if(response.status===200){
+        toast.success("OTP verify successfully");
+       await getUserData();
+       setUserData(prev => ({ ...prev, isAccountVerified: true }));
+        navigate("/");
+      }else{
+        toast.error("invalid OTP");
+      }
+    }catch(e){
+      toast.error("failed to verify OTP. Please try again")
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  useEffect(()=>{
+    isLoggedIn && userData && userData.isAccountVerified && navigate("/");
+  }, [isLoggedIn , userData]);
 
   return (
    <div className="email-verify-container d-flex align-items-center justify-content-center vh-100 position-relative"
@@ -72,7 +105,7 @@ const EmailVerify = () => {
             ))}
           </div>
   
-      <button className="btn btn-primary w-100 fw-semibold">
+      <button className="btn btn-primary w-100 fw-semibold " disabled={loading} onClick={handleVerify}>
     {loading?"Verifying...": "Verify email"}
         </button>
 

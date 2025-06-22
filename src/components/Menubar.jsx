@@ -44,6 +44,22 @@ const handleClick =() =>{
    navigate("/email-verify");
 }
 
+// api call for sending otp
+const sendVerificationOtp = async()=>{
+  try{
+    axios.defaults.withCredentials=true;
+   const response = await axios.post(BACKEND_URL+"/send-otp");
+   if(response.status===200){
+    navigate("/email-verify");
+    toast.success("OTP has been sent successfully.");
+   }else{
+    toast.error("unable to send OTP")
+   }
+  }catch(e){
+    toast.message(e.response.data.message);
+  }
+}
+
   return (
    <nav className="navbar bg-white px-5 py-4 d-flex justify-content-between align-items-center">
     <div className="d-flex align-items-center gap-2">
@@ -75,7 +91,7 @@ const handleClick =() =>{
                     >
                        {!userData.isAccountVerified && (
                         <div className="dropdown-item py-1 px-2" style={{cursor:"pointer"}}
-                        onClick={handleClick} >
+                        onClick={sendVerificationOtp} >
                         Verify email
                         </div>
                        )}

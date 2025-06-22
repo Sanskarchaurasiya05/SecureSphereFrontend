@@ -8,6 +8,7 @@ import Home from "./pages/Home.jsx";
 import Login from './pages/Login.jsx';
 import EmailVerify from './pages/EmailVerify.jsx';
 import ResetPassword from './pages/ResetPassword.jsx';
+import HeroSection from './components/HeroSection.jsx';
 
 const App = () => {
   
@@ -20,6 +21,7 @@ const App = () => {
         <Route path="/login" element={<Login/>}/>
         <Route path="/email-verify" element={<EmailVerify />}/>
         <Route path="/reset-password" element={<ResetPassword />}/>
+        <Route path="/Hero" element={<HeroSection/>}/>
   </Routes>
     </div>
   )
